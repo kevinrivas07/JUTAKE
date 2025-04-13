@@ -12,13 +12,13 @@ router.post("/", async (req: Request, res: Response) => {
   res.status(201).json(book);
 });
 
-// Obtener todos los libros
+// mostrar todos los libros
 router.get("/", async (_req: Request, res: Response) => {
   const books = await bookRepo.find();
   res.json(books);
 });
 
-// Obtener un libro por ID
+// mostrar un libro por ID
 router.get("/:id", async (req: Request, res: Response) => {
   const book = await bookRepo.findOneBy({ id: +req.params.id });
   book ? res.json(book) : res.status(404).json({ message: "Libro no encontrado" });
