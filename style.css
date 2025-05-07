@@ -94,12 +94,50 @@ body {
   }
 
 
-/* Oculta el input real */
-input[type="file"] {
-    display: none;
+
+
+ input[type="file"] {
+    font-size: 12px;              
+    border: none;
+    background: none;
+    color: #333;
+    outline: none;
+    height: 30px;
+    padding: 0;
   }
   
-  /* Estilo del botón con imagen */
+ 
+ /* Oculta completamente el botón y fuerza alineación del texto */
+input[type="file"] {
+    width: 100%;
+    height: 100%;
+    font-size: 12px;
+    border: none;
+    background: none;
+    color: #333;
+    outline: none;
+    text-align: center;
+    padding: 0;
+    line-height: 40px; /* Esto centra el texto verticalmente */
+    cursor: pointer;
+  }
+  /* Oculta el botón del selector */
+input[type="file"]::file-selector-button {
+    display: none;
+  }
+
+  .file-wrapper {
+    position: relative;
+    width: 200px;
+    height: 40px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  
+
   .upload-icon img {
     width: 50px; 
     height: 50px;
@@ -114,5 +152,11 @@ input[type="file"] {
   .upload-icon img:hover {
     transform: scale(1.05);
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+  }
+
+  #file-name {
+    font-size: 0.9rem;
+    color: #333;
+    margin-top: 0.5rem;
   }
   
