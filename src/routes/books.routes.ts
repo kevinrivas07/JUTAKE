@@ -1,36 +1,47 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import { AppDataSource } from "../data-sources";
 import { Book } from "../entity/books";
 
 const router = Router();
+
+// Obtener el repositorio de la entidad Book
 const bookRepo = AppDataSource.getRepository(Book);
 
-// Crear
-router.post("/", async (req: Request, res: Response) => {
+// Crear libro
+router.post("/", async (req, res) => {
   const book = bookRepo.create(req.body);
   await bookRepo.save(book);
-  res.status(201).json(book);
+  res.json(book);
 });
 
-// mostrar todos los libros
-router.get("/", async (_req: Request, res: Response) => {
+// Obtener todos los libros
+router.get("/", async (req, res) => {
   const books = await bookRepo.find();
   res.json(books);
 });
 
-// mostrar un libro por ID
-router.get("/:id", async (req: Request, res: Response) => {
+// Obtener libro por ID
+router.get("/:id", async (req, res) => {
   const book = await bookRepo.findOneBy({ id: +req.params.id });
-  book ? res.json(book) : res.status(404).json({ message: "Libro no encontrado" });
+  book ? res.json(book) : res.status(404).json({ error: "Libro no encontrado" });
 });
 
+// Actualizar libro por ID
+router.put("/:id", async (req, res) => {
+  const book = await bookRepo.findOneBy({ id: +req.params.id });
+  if (book) {
+    bookRepo.merge(book, req.body);
+    await bookRepo.save(book);
+    res.json(book);
+  } else {
+    res.status(404).json({ error: "Libro no encontrado" });
+  }
+});
 
-// Eliminar
-router.delete("/:id", async (req: Request, res: Response) => {
+// Eliminar libro por ID
+router.delete("/:id", async (req, res) => {
   const result = await bookRepo.delete(req.params.id);
-  result.affected === 0
-    ? res.status(404).json({ message: "Libro no encontrado" })
-    : res.json({ message: "Libro eliminado" });
+  res.json(result);
 });
 
 export default router;
