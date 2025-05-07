@@ -21,6 +21,9 @@ export class Book {
   genre!: string;
 
   @Column({ nullable: true })
+  date?: string;
+
+  @Column({ nullable: true })
   photo?: string;
 
   @Column({ default: true })
