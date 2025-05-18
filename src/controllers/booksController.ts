@@ -16,14 +16,38 @@ export const createBook = async (req: Request, res: Response) => {
 };
 
 // Obtener todos los libros
-export const getBooks = async (_req: Request, res: Response) => {
+export const getBooks = async (req: Request, res: Response) => {
   try {
-    const books = await bookRepo.find();
-    res.json(books);  // Retorna todos los libros
-  } catch (error) {
-    res.status(500).json({ error: "Error al obtener los libros" });
+    const { author, title, genre } = req.query as { [key: string]: string };
+
+    const queryBuilder = bookRepo.createQueryBuilder("book");
+
+    if (author) {
+      queryBuilder.where("LOWER(book.author) LIKE :author", {
+        author: `%${author.toLowerCase()}%`,
+      });
+    } else if (title) {
+      queryBuilder.where("LOWER(book.title) LIKE :title", {
+        title: `%${title.toLowerCase()}%`,
+      });
+    } else if (genre) {
+      queryBuilder.where("LOWER(book.genre) LIKE :genre", {
+        genre: `%${genre.toLowerCase()}%`,
+      });
+    }
+
+    const books = await queryBuilder.getMany();
+    res.json(books);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Error desconocido";
+    res.status(500).json({
+      error: "Error al obtener los libros",
+      details: errorMessage,
+    });
   }
 };
+
+
 
 // Obtener libro por ID
 export const getBookById = async (req: Request, res: Response) => {
@@ -66,5 +90,27 @@ export const deleteBookById = async (req: Request, res: Response) => {
     }
   } catch (error) {
     res.status(500).json({ error: "Error al eliminar el libro" });
+  }
+};
+
+
+// Cambiar disponibilidad del libro
+export const changeBookAvailability = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { available } = req.body;
+
+    const book = await bookRepo.findOneBy({ id: +id });
+
+    if (!book) {
+      return res.status(404).json({ error: "Libro no encontrado" });
+    }
+
+    book.available = available;
+    await bookRepo.save(book);
+
+    res.json({ message: "Disponibilidad actualizada", book });
+  } catch (error) {
+    res.status(500).json({ error: "Error al actualizar disponibilidad" });
   }
 };

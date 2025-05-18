@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { AppDataSource } from "../data-sources";
 import { Book } from "../entity/books";
+import { getBooks } from "../controllers/booksController";
+import { changeBookAvailability } from "../controllers/booksController";
 
 const router = Router();
 
@@ -14,11 +16,17 @@ router.post("/", async (req, res) => {
   res.json(book);
 });
 
-// Obtener todos los libros
+router.patch("/:id/availability", changeBookAvailability);
+
+/* Obtener todos los libros
 router.get("/", async (req, res) => {
   const books = await bookRepo.find();
   res.json(books);
-});
+});*/
+
+
+//Obtener libro con filtros
+router.get("/", getBooks);
 
 // Obtener libro por ID
 router.get("/:id", async (req, res) => {
@@ -43,5 +51,6 @@ router.delete("/:id", async (req, res) => {
   const result = await bookRepo.delete(req.params.id);
   res.json(result);
 });
+
 
 export default router;
