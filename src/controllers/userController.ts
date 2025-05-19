@@ -1,36 +1,72 @@
 import { Request, Response } from 'express';
+import { AppDataSource } from '../data-sources';
 import { User } from '../entity/user';
 
-let users: User[] = [];
+const userRepo = AppDataSource.getRepository(User);
 
-export const getUsers = (req: Request, res: Response) => {
+export const getUsers = async (req: Request, res: Response) => {
+  const users = await userRepo.find();
   res.json(users);
 };
 
-export const getUser = (req: Request, res: Response) => {
+export const getUser = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  const user = users.find(u => u.id === id);
+  const user = await userRepo.findOneBy({ id });
   user ? res.json(user) : res.status(404).json({ msg: 'Usuario no encontrado' });
 };
 
-export const createUser = (req: Request, res: Response) => {
-  const newUser: User = req.body;
-  users.push(newUser);
-  res.status(201).json(newUser);
-};
+export const createUser = async (req: Request, res: Response) => {
+  const { name, card, phone, email, password } = req.body;
 
-export const updateUser = (req: Request, res: Response) => {
-  const id = Number(req.params.id);
-  const index = users.findIndex(u => u.id === id);
-  if (index !== -1) {
-    users[index] = { ...users[index], ...req.body };
-    res.json(users[index]);
-  } else {
-    res.status(404).json({ msg: 'Usuario no encontrado' });
+  // Validación de campos obligatorios
+  if (!name || !card || !phone || !email || !password) {
+    return res.status(400).json({ msg: 'Todos los campos son obligatorios' });
   }
+
+  // Validación de email con expresión regular
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ msg: 'Correo electrónico inválido' });
+  }
+
+  // Verificar si ya existe usuario con la misma cédula o correo
+  const cedulaExists = await userRepo.findOneBy({ card });
+  const emailExists = await userRepo.findOneBy({ email });
+
+  if (cedulaExists || emailExists) {
+    return res.status(409).json({ msg: 'Ya existe un usuario con esa cédula o correo' });
+  }
+
+  // Crear usuario (sin encriptar contraseña)
+  const user = userRepo.create({
+    name,
+    card,
+    phone,
+    email,
+    password,
+  });
+
+  await userRepo.save(user);
+  res.status(201).json({ msg: 'Usuario creado exitosamente' });
 };
 
-export const deleteUser = (req: Request, res: Response) => {
-  users = users.filter(u => u.id !== Number(req.params.id));
-  res.status(204).send();
+export const updateUser = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const user = await userRepo.findOneBy({ id });
+
+  if (!user) {
+    return res.status(404).json({ msg: 'Usuario no encontrado' });
+  }
+
+  userRepo.merge(user, req.body);
+  const updated = await userRepo.save(user);
+  res.json(updated);
+};
+
+export const deleteUser = async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const result = await userRepo.delete(id);
+  result.affected
+    ? res.status(204).send()
+    : res.status(404).json({ msg: 'Usuario no encontrado' });
 };

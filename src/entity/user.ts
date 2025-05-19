@@ -14,8 +14,14 @@ export class User {
   name!: string;
 
   @Column()
+  card!: string;
+
+  @Column()
+  phone!: string;
+
+  @Column()
   email!: string;
 
-  @Column({default:"123456"})
+  @Column()
   password!: string;
 }
