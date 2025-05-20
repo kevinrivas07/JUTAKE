@@ -70,3 +70,25 @@ export const deleteUser = async (req: Request, res: Response) => {
     ? res.status(204).send()
     : res.status(404).json({ msg: 'Usuario no encontrado' });
 };
+
+
+
+export const getUserProfile = async (req: Request, res: Response) => {
+  console.log('Entrando a GET /profile/:id');
+  const id = Number(req.params.id);
+
+  if (isNaN(id)) {
+    return res.status(400).json({ msg: 'ID inválido' });
+  }
+
+  const user = await userRepo.findOneBy({ id });
+
+  if (!user) {
+    return res.status(404).json({ msg: 'Usuario no encontrado' });
+  }
+
+  const { password, ...userWithoutPassword } = user;
+
+  res.json(userWithoutPassword);
+  
+};

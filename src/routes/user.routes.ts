@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AppDataSource } from "../data-sources";
 import { User } from "../entity/user";
+import { getUserProfile } from '../controllers/userController';
 
 const router = Router();
 
@@ -41,5 +42,7 @@ router.delete("/:id", async (req, res) => {
   const result = await userRepo.delete(req.params.id);
   res.json(result);
 });
+
+router.get('/profile/:id', getUserProfile);
 
 export default router;
