@@ -50,6 +50,31 @@ export const createUser = async (req: Request, res: Response) => {
   res.status(201).json({ msg: 'Usuario creado exitosamente' });
 };
 
+export const loginUser = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ msg: 'Email y contraseña son obligatorios' });
+  }
+
+  const user = await userRepo.findOneBy({ email });
+
+  if (!user) {
+    return res.status(404).json({ msg: 'Usuario no encontrado' });
+  }
+
+  // Comparar contraseña sin encriptar (simple)
+  if (user.password !== password) {
+    return res.status(401).json({ msg: 'Contraseña incorrecta' });
+  }
+
+
+  return res.json({
+    msg: 'Inicio de sesión exitoso',
+  });
+};
+
+
 export const updateUser = async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   const user = await userRepo.findOneBy({ id });

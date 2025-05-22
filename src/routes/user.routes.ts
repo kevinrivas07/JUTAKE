@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { AppDataSource } from "../data-sources";
 import { User } from "../entity/user";
-import { getUserProfile } from '../controllers/userController';
+import { getUserProfile, loginUser } from '../controllers/userController';
 
 const router = Router();
 
@@ -44,5 +44,7 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.get('/profile/:id', getUserProfile);
+
+router.post('/login', loginUser);
 
 export default router;

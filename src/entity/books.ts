@@ -23,9 +23,9 @@ export class Book {
   @Column({ nullable: true })
   date?: string;
 
-  @Column({ nullable: true })
-  photo?: string;
-
   @Column({ default: true })
   available!: boolean;
+
+  @Column({ nullable: true })
+  image!: string;
 }

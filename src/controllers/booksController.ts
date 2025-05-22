@@ -7,15 +7,27 @@ const bookRepo = AppDataSource.getRepository(Book);
 // Crear libro
 export const createBook = async (req: Request, res: Response) => {
   try {
-    const book = bookRepo.create(req.body);
+    const { title, author, year, publisher, genre, date, image} = req.body;
+
+    const book = bookRepo.create({
+      title,
+      author,
+      year: +year,
+      publisher,
+      genre,
+      date,
+      available: true,
+      image,
+    });
+
     await bookRepo.save(book);
-    res.json(book);  // Retorna el libro creado
+    res.status(201).json(book);
   } catch (error) {
     res.status(500).json({ error: "Error al crear el libro" });
   }
 };
 
-// Obtener todos los libros
+// Obtener todos los libros con filtros
 export const getBooks = async (req: Request, res: Response) => {
   try {
     const { author, title, genre } = req.query as { [key: string]: string };
@@ -38,25 +50,19 @@ export const getBooks = async (req: Request, res: Response) => {
 
     const books = await queryBuilder.getMany();
     res.json(books);
-  } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Error desconocido";
-    res.status(500).json({
-      error: "Error al obtener los libros",
-      details: errorMessage,
-    });
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener los libros" });
   }
 };
-
-
 
 // Obtener libro por ID
 export const getBookById = async (req: Request, res: Response) => {
   try {
     const book = await bookRepo.findOneBy({ id: +req.params.id });
     if (book) {
-      res.json(book);  // Retorna el libro si se encuentra
+      res.json(book);
     } else {
-      res.status(404).json({ error: "Libro no encontrado" });  
+      res.status(404).json({ error: "Libro no encontrado" });
     }
   } catch (error) {
     res.status(500).json({ error: "Error al obtener el libro" });
@@ -70,9 +76,9 @@ export const updateBookById = async (req: Request, res: Response) => {
     if (book) {
       bookRepo.merge(book, req.body);
       await bookRepo.save(book);
-      res.json(book);  // Retorna el libro actualizado
+      res.json(book);
     } else {
-      res.status(404).json({ error: "Libro no encontrado" });  
+      res.status(404).json({ error: "Libro no encontrado" });
     }
   } catch (error) {
     res.status(500).json({ error: "Error al actualizar el libro" });
@@ -82,17 +88,16 @@ export const updateBookById = async (req: Request, res: Response) => {
 // Eliminar libro por ID
 export const deleteBookById = async (req: Request, res: Response) => {
   try {
-    const result = await bookRepo.delete(req.params.id);
+    const result = await bookRepo.delete(+req.params.id);
     if (result.affected === 0) {
-      res.status(404).json({ error: "Libro no encontrado" });  
+      res.status(404).json({ error: "Libro no encontrado" });
     } else {
-      res.json({ message: "Libro eliminado" });  // Retorna mensaje de eliminación
+      res.json({ message: "Libro eliminado" });
     }
   } catch (error) {
     res.status(500).json({ error: "Error al eliminar el libro" });
   }
 };
-
 
 // Cambiar disponibilidad del libro
 export const changeBookAvailability = async (req: Request, res: Response) => {
