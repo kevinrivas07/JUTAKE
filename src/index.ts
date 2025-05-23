@@ -1,5 +1,6 @@
 // src/index.ts
 import express from "express";
+import 'dotenv/config';
 import userRoutes from "./routes/user.routes";
 import bookRoutes from "./routes/books.routes";
 import loanRoutes from  "./routes/loan.routes";

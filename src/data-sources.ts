@@ -1,17 +1,19 @@
-// src/data-source.ts
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { User } from "./entity/user";
 import { Book } from "./entity/books";
 import { Loan } from "./entity/loan";
 
-
 export const AppDataSource = new DataSource({
-  type: "sqlite",
-  database: "database.sqlite",
-  synchronize: true, //Indica que TypeORM debe sincronizar automáticamente la estructura de las tablas en la base de datos con las entidades de TypeScript.
-  logging: false, // Si se pone en true, TypeORM va a mostrar por consola todas las consultas SQL ejecutadas.
-  entities: [User,Book,Loan], // Aquí se indica el arreglo de entidades que TypeORM debe usar para crear las tablas. En este caso solo la entidad User
-  migrations: [], // No puedes simplemente borrar la base de datos y volverla a crear desde cero (porque perderías datos de usuarios reales). Aquí es donde las migraciones son útiles: te permiten evolucionar la base de datos paso a paso, de forma controlada.
-  subscribers: [], // son listeners que reaccionan a eventos del ciclo de vida de las entidades.
+  type: "postgres",
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || "5432"),
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  synchronize: true, // true solo en desarrollo
+  logging: false,
+  entities: [User, Book, Loan],
+  migrations: [],
+  subscribers: [],
 });
